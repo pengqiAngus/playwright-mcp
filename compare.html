@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>视觉对比结果</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .comparison-container {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+      }
+      .image-container {
+        flex: 1;
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .image-container h3 {
+        margin-top: 0;
+        color: #333;
+      }
+      .image-wrapper {
+        position: relative;
+        width: 100%;
+      }
+      .image-wrapper img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .diff-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+      .diff-marker {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: red;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .stats {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .stats h2 {
+        margin-top: 0;
+        color: #333;
+      }
+      .stats p {
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>视觉对比结果</h1>
+      <div class="stats">
+        <h2>对比统计</h2>
+        <p>差异像素数量: <span id="diffCount">0</span></p>
+        <p>差异阈值: <span id="threshold">100</span></p>
+        <p>测试状态: <span id="testStatus">通过</span></p>
+      </div>
+      <div class="comparison-container">
+        <div class="image-container">
+          <h3>基准图片</h3>
+          <div class="image-wrapper">
+            <img id="baseline" src="screenshots/baseline.png" alt="基准图片" />
+          </div>
+        </div>
+        <div class="image-container">
+          <h3>当前图片</h3>
+          <div class="image-wrapper">
+            <img id="current" src="screenshots/current.png" alt="当前图片" />
+          </div>
+        </div>
+      </div>
+      <div class="image-container">
+        <h3>差异图片</h3>
+        <div class="image-wrapper">
+          <img id="diff" src="screenshots/diff.png" alt="差异图片" />
+        </div>
+      </div>
+    </div>
+    <script>
+      // 从 URL 参数中获取差异信息
+      const urlParams = new URLSearchParams(window.location.search);
+      const diffCount = parseInt(urlParams.get("diffCount") || "0");
+      const threshold = parseInt(urlParams.get("threshold") || "100");
+
+      // 更新统计信息
+      document.getElementById("diffCount").textContent = diffCount;
+      document.getElementById("threshold").textContent = threshold;
+      document.getElementById("testStatus").textContent =
+        diffCount < threshold ? "通过" : "失败";
+      document.getElementById("testStatus").style.color =
+        diffCount < threshold ? "green" : "red";
+    </script>
+  </body>
+</html>
