@@ -1,26 +1,26 @@
 {
   "name": "@anguske/mcp-playwright-visual-test",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "UI视觉对比测试工具 - 基于 Playwright 的视觉回归测试工具",
-  "main": "dist/index.js",
+  "main": "build/index.js",
   "type": "module",
   "bin": {
-    "mcp-playwright-visual-test": "./dist/index.js"
+    "mcp-playwright-visual-test": "build/index.js"
   },
   "files": [
-    "dist",
+    "build",
     "README.md"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "tsc && shx chmod +x build/*.js",
+    "start": "node build/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "prepublishOnly": "npm run build",
-    "mcp": "node dist/index.js",
-    "publish": "pnpm build && pnpm publish"
+    "prepublishOnly": "pnpm run build",
+    "mcp": "node build/index.js",
+    "pub": "pnpm run build && pnpm publish"
   },
   "keywords": [
     "visual-testing",
@@ -44,7 +44,8 @@
     "pixelmatch": "^7.1.0",
     "pngjs": "^7.0.0",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "shx": "^0.3.4"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",

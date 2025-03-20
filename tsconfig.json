@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "lib": ["ES2020", "DOM"],
-    "outDir": "./dist",
+    "outDir": "./build",
     "rootDir": "./src",
     "strict": false,
     "esModuleInterop": true,
