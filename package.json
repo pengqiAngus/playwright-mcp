@@ -5,7 +5,7 @@
   "main": "build/index.js",
   "type": "module",
   "bin": {
-    "mcp-visual-test": "build/index.js"
+    "mcp-visual": "build/index.js"
   },
   "files": [
     "build",
@@ -20,7 +20,8 @@
     "dev": "ts-node-dev --respawn src/index.ts",
     "prepublishOnly": "npm run build",
     "mcp": "node build/index.js",
-    "pub": "npm run build && npm publish"
+    "pub": "npm run build && npm publish",
+    "test:cli": "node ./build/index.js"
   },
   "keywords": [
     "visual-testing",
@@ -38,16 +39,16 @@
     "url": "https://github.com/yourusername/playwright-mcp"
   },
   "devDependencies": {
-    "@playwright/test": "^1.51.1",
     "@types/node": "^20.11.19",
-    "pixelmatch": "^7.1.0",
-    "pngjs": "^7.0.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.3.3",
     "shx": "^0.3.4"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
+    "@playwright/test": "^1.51.1",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
     "zod": "^3.24.2"
   }
 }
