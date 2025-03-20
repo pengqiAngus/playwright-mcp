@@ -1,5 +1,5 @@
 {
-  "name": "@angus/mcp-playwright-visual-test",
+  "name": "@anguske/mcp-playwright-visual-test",
   "version": "1.0.0",
   "description": "UI视觉对比测试工具 - 基于 Playwright 的视觉回归测试工具",
   "main": "dist/index.js",
