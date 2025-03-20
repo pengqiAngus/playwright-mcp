@@ -2,19 +2,44 @@ import {
   McpServer,
   ResourceTemplate,
 } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { chromium } from "@playwright/test";
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
 import fs from "fs";
 import path from "path";
-import { VisualTestConfig } from "./types";
+import { VisualTestConfig, VisualTestResult } from "./types";
 import { z } from "zod";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // 创建截图目录
-const screenshotsDir = path.join(__dirname, "../screenshots");
+const getProjectRoot = () => {
+    // 尝试从环境变量获取项目根目录
+    const projectRoot = process.env.PROJECT_ROOT;
+    if (projectRoot) {
+        return projectRoot;
+    }
+    
+    // 如果环境变量未设置，则尝试从当前文件路径推导
+    const currentDir = __dirname;
+    // 如果在 node_modules 中，向上查找直到找到项目根目录
+    if (currentDir.includes('node_modules')) {
+        const parts = currentDir.split(path.sep);
+        const nodeModulesIndex = parts.indexOf('node_modules');
+        return parts.slice(0, nodeModulesIndex).join(path.sep);
+    }
+    
+    // 如果在 dist 目录中，返回上一级目录
+    return path.dirname(currentDir);
+};
+
+const projectRoot = getProjectRoot();
+const screenshotsDir = path.join(projectRoot, "screenshots");
 if (!fs.existsSync(screenshotsDir)) {
-  fs.mkdirSync(screenshotsDir, { recursive: true });
+    fs.mkdirSync(screenshotsDir, { recursive: true });
 }
 
 // 登录函数
@@ -73,14 +98,16 @@ async function checkLoginRedirect(page: any, config: VisualTestConfig) {
   if (!config.autoLogin) return false;
 
   const currentUrl = page.url();
-  const loginUrlPattern =
-    config.autoLogin.loginUrlPattern || /login|signin|auth/i;
+  const loginUrlPattern = new RegExp(
+    config.autoLogin.loginUrlPattern || /login|signin|auth/i
+  );
 
   if (loginUrlPattern.test(currentUrl)) {
     console.log("检测到登录页面重定向，尝试自动登录...");
     const loginSuccess = await autoLogin(page, config.autoLogin);
     if (loginSuccess) {
-      // 登录成功后重新访问目标页面
+        // 登录成功后重新访问目标页面
+    console.log("登录成功，重新访问目标页面");
       await page.goto(config.url);
       await page.waitForLoadState("networkidle");
       return true;
@@ -91,13 +118,17 @@ async function checkLoginRedirect(page: any, config: VisualTestConfig) {
 }
 
 // 执行视觉对比测试
-async function runVisualTest(config: VisualTestConfig) {
+async function runVisualTest(config: VisualTestConfig): Promise<VisualTestResult> {
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
   try {
     // 设置视口大小
-    await page.setViewportSize(config.viewport || { width: 1280, height: 720 });
+    const defaultViewport = { width: 1280, height: 720 };
+    await page.setViewportSize({
+      width: config.viewport?.width ?? defaultViewport.width,
+      height: config.viewport?.height ?? defaultViewport.height
+    });
 
     // 如果需要登录，先进行登录
     if (config.login) {
@@ -139,25 +170,50 @@ async function runVisualTest(config: VisualTestConfig) {
       type: "png",
       ...(config.selector ? { selector: config.selector } : {}),
     });
-
+    console.log("获取页面截图成功");
     // 保存当前截图
     const currentScreenshotPath = path.join(screenshotsDir, "current.png");
     fs.writeFileSync(currentScreenshotPath, screenshot);
 
     // 基准截图路径
     const baselineScreenshotPath = path.join(screenshotsDir, "baseline.png");
-
-    // 如果提供了基准图片数据，保存它
-    if (config.baselineImage) {
-      const baselineBuffer = Buffer.from(config.baselineImage, "base64");
+    
+    // 优先检查是否已存在基准图片
+    if (fs.existsSync(baselineScreenshotPath) ) {
+      console.log("使用已存在的基准图片", baselineScreenshotPath);
+    }
+    // 如果提供了基准图片路径，从该路径读取
+    else if (config.baselineImagePath) {
+      try {
+        const baselineBuffer = fs.readFileSync(config.baselineImagePath);
+        fs.writeFileSync(baselineScreenshotPath, baselineBuffer);
+        console.log("从指定路径读取基准图片成功", baselineScreenshotPath);
+      } catch (error) {
+        console.error("读取指定路径基准图片失败:", error);
+        return {
+          success: false,
+          error: `读取基准图片失败: ${error instanceof Error ? error.message : '未知错误'}`
+        };
+      }
+    }
+    // 如果提供了基准图片数据
+    else if (config.baselineImage) {
+      let baselineBuffer: Buffer;
+      if (Buffer.isBuffer(config.baselineImage)) {
+        baselineBuffer = config.baselineImage;
+      } else {
+        baselineBuffer = Buffer.from(config.baselineImage, "base64");
+      }
       fs.writeFileSync(baselineScreenshotPath, baselineBuffer);
+      console.log("保存基准图片数据成功");
     }
     // 如果基准截图不存在，将当前截图作为基准
-    else if (!fs.existsSync(baselineScreenshotPath)) {
+    else {
       fs.copyFileSync(currentScreenshotPath, baselineScreenshotPath);
+      console.log("创建新的基准图片");
       return {
         success: true,
-        message: "已创建基准截图",
+        message: "已创建新的基准截图",
         baselineCreated: true,
       };
     }
@@ -188,32 +244,21 @@ async function runVisualTest(config: VisualTestConfig) {
       diff.data,
       width,
       height,
-      { threshold: 0.1 }
+      { threshold: config.threshold ? config.threshold / 100 : 0.1 }
     );
-
     // 保存差异图片
     fs.writeFileSync(
       path.join(screenshotsDir, "diff.png"),
       PNG.sync.write(diff)
     );
-
-    // 将当前截图转换为 base64
-    const currentBase64 = fs
-      .readFileSync(currentScreenshotPath)
-      .toString("base64");
-    const diffBase64 = fs
-      .readFileSync(path.join(screenshotsDir, "diff.png"))
-      .toString("base64");
+    console.log("创建差异图片成功");
 
     return {
       success: true,
+      message: "创建差异图片成功",
       diffPixels: numDiffPixels,
       threshold: config.threshold || 100,
       passed: numDiffPixels < (config.threshold || 100),
-      screenshots: {
-        current: currentBase64,
-        diff: diffBase64,
-      },
     };
   } catch (error) {
     console.error("视觉对比测试失败:", error);
@@ -235,25 +280,21 @@ const server = new McpServer({
 
 // 添加视觉测试工具
 server.tool(
-  "runTest",
-  z.object({
-    url: z.string().describe("要测试的页面URL"),
-    selector: z.string().optional().describe("要截图的元素选择器"),
-    waitForSelector: z.string().optional().describe("等待元素出现"),
-    waitForTimeout: z.number().optional().describe("等待时间（毫秒）"),
-    threshold: z.number().optional().describe("差异阈值"),
-    ignoreSelectors: z
-      .array(z.string())
-      .optional()
-      .describe("忽略的元素选择器"),
-    viewport: z
-      .object({
-        width: z.number(),
-        height: z.number(),
-      })
-      .optional(),
-    baselineImage: z.string().optional().describe("基准图片的 base64 编码数据"),
-  }),
+  "playwright-ui-test",
+  {
+    url: z.string(),
+    selector: z.string().optional(),
+    waitForSelector: z.string().optional(),
+    waitForTimeout: z.number().optional(),
+    threshold: z.number().optional(),
+    ignoreSelectors: z.array(z.string()).optional(),
+    viewport: z.object({
+      width: z.number(),
+      height: z.number()
+    }).optional(),
+    baselineImagePath: z.string().optional(),
+    baselineImage: z.string().optional()
+  },
   async (params) => {
     // 从环境变量或配置文件中获取自动登录配置
     const autoLoginConfig = {
@@ -268,10 +309,59 @@ server.tool(
         process.env.AUTO_LOGIN_URL_PATTERN || "login|signin|auth",
     };
 
-    return await runVisualTest({
-      ...params,
+    // 从环境变量获取视觉测试参数
+    const testConfig = {
+      selector: process.env.TEST_SELECTOR || params.selector,
+      waitForSelector: process.env.TEST_WAIT_FOR_SELECTOR || params.waitForSelector,
+      waitForTimeout: process.env.TEST_WAIT_TIMEOUT ? parseInt(process.env.TEST_WAIT_TIMEOUT) : params.waitForTimeout,
+      threshold: process.env.TEST_THRESHOLD ? parseInt(process.env.TEST_THRESHOLD) : params.threshold,
+      ignoreSelectors: process.env.TEST_IGNORE_SELECTORS ? process.env.TEST_IGNORE_SELECTORS.split(',') : params.ignoreSelectors,
+      viewport: {
+        width: process.env.TEST_VIEWPORT_WIDTH ? parseInt(process.env.TEST_VIEWPORT_WIDTH) : (params.viewport?.width || 1280),
+        height: process.env.TEST_VIEWPORT_HEIGHT ? parseInt(process.env.TEST_VIEWPORT_HEIGHT) : (params.viewport?.height || 720)
+      }
+    };
+
+    const result = await runVisualTest({
+      url: params.url,
+      ...testConfig,
+      baselineImagePath: params.baselineImagePath,
+      baselineImage: params.baselineImage,
       autoLogin: autoLoginConfig,
-    } as VisualTestConfig);
+    });
+
+    if (result.success) {
+      if (result.baselineCreated || result.baselineUpdated) {
+        return {
+          content: [{
+            type: "text" as const,
+            text: result.message || "基准图片已更新"
+          }]
+        };
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: `差异像素数: ${result.diffPixels}, 阈值: ${result.threshold}, 测试${result.passed ? '通过' : '失败'}`
+        }, {
+          type: "image" as const,
+          data: result.screenshots?.current || "",
+          mimeType: "image/png"
+        }, {
+          type: "image" as const,
+          data: result.screenshots?.diff || "",
+          mimeType: "image/png"
+        }]
+      };
+    }
+
+    return {
+      content: [{
+        type: "text" as const,
+        text: result.error || "未知错误"
+      }]
+    };
   }
 );
 
@@ -288,8 +378,4 @@ server.resource(
     ],
   })
 );
-
-// 启动服务器
-const transport = new StdioServerTransport();
-await server.connect(transport);
-console.log("MCP 服务器已启动");
+export { server };

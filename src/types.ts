@@ -5,10 +5,12 @@ export interface VisualTestConfig {
   waitForTimeout?: number;
   threshold?: number;
   ignoreSelectors?: string[];
-  viewport?: {
+  viewport?: Partial<{
     width: number;
     height: number;
-  };
+  }>;
+  baselineImage?: string;
+  baselineImagePath?: string;
   login?: {
     url: string;
     username: string;
@@ -18,7 +20,6 @@ export interface VisualTestConfig {
     submitSelector: string;
     successSelector?: string;
   };
-  baselineImage?: string;
   autoLogin?: {
     username: string;
     password: string;
@@ -26,6 +27,21 @@ export interface VisualTestConfig {
     passwordSelector: string;
     submitSelector: string;
     successSelector?: string;
-    loginUrlPattern?: string; // 登录页面的 URL 模式，用于检测是否被重定向到登录页
+    loginUrlPattern?: string | RegExp;
   };
+}
+
+export interface VisualTestResult {
+  success: boolean;
+  message?: string;
+  baselineCreated?: boolean;
+  baselineUpdated?: boolean;
+  diffPixels?: number;
+  threshold?: number;
+  passed?: boolean;
+  screenshots?: {
+    current: string;
+    diff: string;
+  };
+  error?: string;
 }
