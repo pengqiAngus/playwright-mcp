@@ -4,9 +4,7 @@
   "description": "UI视觉对比测试工具 - 基于 Playwright 的视觉回归测试工具",
   "main": "build/index.js",
   "type": "module",
-  "bin": {
-    "mcp-playwright-visual-test": "build/index.js"
-  },
+  "bin": "build/index.js",
   "files": [
     "build",
     "README.md"
