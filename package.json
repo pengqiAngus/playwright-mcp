@@ -1,27 +1,42 @@
 {
-  "name": "playwright-ui-test",
+  "name": "@angus/mcp-playwright-visual-test",
   "version": "1.0.0",
-  "description": "UI视觉对比测试工具",
+  "description": "UI视觉对比测试工具 - 基于 Playwright 的视觉回归测试工具",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "playwright": "./dist/index.js"
+    "mcp-playwright-visual-test": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "mcp": "node dist/index.js"
+    "prepublishOnly": "npm run build",
+    "mcp": "node dist/index.js",
+    "publish": "pnpm build && pnpm publish"
   },
   "keywords": [
     "visual-testing",
     "playwright",
     "ui-testing",
     "mcp",
-    "api"
+    "api",
+    "visual-regression",
+    "testing"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "kepengqi: kepengqi@gmail.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/playwright-mcp"
+  },
   "packageManager": "pnpm@10.6.3",
   "devDependencies": {
     "@playwright/test": "^1.51.1",
