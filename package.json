@@ -1,10 +1,12 @@
 {
   "name": "@anguske/mcp-playwright-visual-test",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "UI视觉对比测试工具 - 基于 Playwright 的视觉回归测试工具",
   "main": "build/index.js",
   "type": "module",
-  "bin": "build/index.js",
+  "bin": {
+    "mcp-visual-test": "build/index.js"
+  },
   "files": [
     "build",
     "README.md"
