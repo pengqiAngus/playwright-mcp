@@ -17,3 +17,4 @@ test-results/
 .DS_Store
 Thumbs.db
 dist/
+dist/index.js
