@@ -1,0 +1,109 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    properties:
+      autoLoginUsername:
+        type: string
+        default: ""
+        description: Username for auto login.
+      autoLoginPassword:
+        type: string
+        default: ""
+        description: Password for auto login.
+      autoLoginUsernameSelector:
+        type: string
+        default: "#userNameSignIn"
+        description: CSS selector for username input.
+      autoLoginPasswordSelector:
+        type: string
+        default: "#passwordSignIn"
+        description: CSS selector for password input.
+      autoLoginSubmitSelector:
+        type: string
+        default: input[type="submit"]
+        description: CSS selector for the submit button.
+      autoLoginSuccessSelector:
+        type: string
+        default: ""
+        description: CSS selector to detect successful login.
+      autoLoginUrlPattern:
+        type: string
+        default: login|signin|auth
+        description: Regex pattern to match login URLs.
+      testSelector:
+        type: string
+        default: ""
+        description: CSS selector for the element to screenshot. If empty, entire page
+          is captured.
+      testWaitForSelector:
+        type: string
+        default: ""
+        description: CSS selector to wait for before taking screenshot.
+      testWaitTimeout:
+        type: number
+        default: 10000
+        description: Timeout in milliseconds to wait for the selector.
+      testThreshold:
+        type: number
+        default: 20
+        description: Pixel difference threshold for visual comparison.
+      testIgnoreSelectors:
+        type: string
+        default: .dynamic-content,.ads
+        description: Comma-separated CSS selectors to ignore during visual diff.
+      testViewportWidth:
+        type: number
+        default: 1440
+        description: Viewport width for the browser.
+      testViewportHeight:
+        type: number
+        default: 800
+        description: Viewport height for the browser.
+      projectRoot:
+        type: string
+        default: ""
+        description: Absolute path to the project root for storing screenshots etc.
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'node',
+      args: ['build/index.js'],
+      env: {
+        AUTO_LOGIN_USERNAME: config.autoLoginUsername,
+        AUTO_LOGIN_PASSWORD: config.autoLoginPassword,
+        AUTO_LOGIN_USERNAME_SELECTOR: config.autoLoginUsernameSelector,
+        AUTO_LOGIN_PASSWORD_SELECTOR: config.autoLoginPasswordSelector,
+        AUTO_LOGIN_SUBMIT_SELECTOR: config.autoLoginSubmitSelector,
+        AUTO_LOGIN_SUCCESS_SELECTOR: config.autoLoginSuccessSelector,
+        AUTO_LOGIN_URL_PATTERN: config.autoLoginUrlPattern,
+        TEST_SELECTOR: config.testSelector,
+        TEST_WAIT_FOR_SELECTOR: config.testWaitForSelector,
+        TEST_WAIT_TIMEOUT: String(config.testWaitTimeout),
+        TEST_THRESHOLD: String(config.testThreshold),
+        TEST_IGNORE_SELECTORS: config.testIgnoreSelectors,
+        TEST_VIEWPORT_WIDTH: String(config.testViewportWidth),
+        TEST_VIEWPORT_HEIGHT: String(config.testViewportHeight),
+        PROJECT_ROOT: config.projectRoot
+      }
+    })
+  exampleConfig:
+    autoLoginUsername: your-username
+    autoLoginPassword: your-password
+    autoLoginUsernameSelector: "#userNameSignIn"
+    autoLoginPasswordSelector: "#passwordSignIn"
+    autoLoginSubmitSelector: input[type="submit"]
+    autoLoginSuccessSelector: ""
+    autoLoginUrlPattern: login|signin|auth
+    testSelector: ""
+    testWaitForSelector: "#content"
+    testWaitTimeout: 10000
+    testThreshold: 20
+    testIgnoreSelectors: .dynamic-content,.ads
+    testViewportWidth: 1440
+    testViewportHeight: 800
+    projectRoot: /path/to/project/root
