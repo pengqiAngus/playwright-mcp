@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "@anguske/mcp-playwright-visual-test": {
+      "command": "npx",
+      "args": ["-y", "@anguske/mcp-playwright-visual-test"],
+      "env": {
+        "AUTO_LOGIN_USERNAME": "wagner3@example.com",
+        "AUTO_LOGIN_PASSWORD": "Wal.3300418",
+        "AUTO_LOGIN_USERNAME_SELECTOR": "#userNameSignIn",
+        "AUTO_LOGIN_PASSWORD_SELECTOR": "#passwordSignIn",
+        "AUTO_LOGIN_SUBMIT_SELECTOR": "input[type=\"submit\"]",
+        "AUTO_LOGIN_SUCCESS_SELECTOR": "",
+        "TEST_VIEWPORT_WIDTH": 1440,
+        "TEST_VIEWPORT_HEIGHT": 800,
+        "TEST_THRESHOLD": 20,
+        "TEST_WAIT_TIMEOUT": 10000,
+        "AUTO_LOGIN_URL_PATTERN": "login|signin|auth",
+        "PROJECT_ROOT": "D:/myProject/quickstart-resources/weather-server-typescript"
+      }
+    },
+    "@wopal/mcp-server-hotnews": {
+      "command": "npx",
+      "args": ["-y", "@wopal/mcp-server-hotnews --client cursor --config {}"]
+    }
+  }
+}

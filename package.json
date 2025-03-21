@@ -1,7 +1,7 @@
 {
   "name": "@anguske/mcp-playwright-visual-test",
-  "version": "1.0.6",
-  "description": "UI视觉对比测试工具 - 基于 Playwright 的视觉回归测试工具",
+  "version": "1.0.8",
+  "description": "UI Visual Comparison Testing tool - visual regression testing tool based on Playwright",
   "main": "build/index.js",
   "type": "module",
   "bin": {
@@ -40,11 +40,12 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.19",
+    "shx": "^0.3.4",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.3.3",
-    "shx": "^0.3.4"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@anguske/mcp-playwright-visual-test": "^1.0.7",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "@playwright/test": "^1.51.1",
     "pixelmatch": "^7.1.0",
