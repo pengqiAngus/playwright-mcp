@@ -1,9 +1,19 @@
 # @mcp/playwright-visual-test
+[![smithery badge](https://smithery.ai/badge/@pengqiAngus/playwright-mcp)](https://smithery.ai/server/@pengqiAngus/playwright-mcp)
 
 基于 Playwright 的视觉回归测试工具，支持 UI 界面截图对比和自动化测试。
 
 ## 安装
 
+### Installing via Smithery
+
+To install @mcp/playwright-visual-test for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@pengqiAngus/playwright-mcp):
+
+```bash
+npx -y @smithery/cli install @pengqiAngus/playwright-mcp --client claude
+```
+
+### Manual Installation
 ```bash
 npm install @mcp/playwright-visual-test
 # 或
@@ -124,4 +134,4 @@ MIT
    - `current.png`: 当前测试的截图
    - `baseline.png`: 基准截图
    - `diff.png`: 差异对比图
-4. 如果是首次运行，当前截图会自动设置为基准图片 
+4. 如果是首次运行，当前截图会自动设置为基准图片
