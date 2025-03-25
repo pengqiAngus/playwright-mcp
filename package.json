@@ -1,6 +1,6 @@
 {
   "name": "@anguske/mcp-playwright-visual-test",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "UI Visual Comparison Testing tool - visual regression testing tool based on Playwright",
   "main": "build/index.js",
   "type": "module",

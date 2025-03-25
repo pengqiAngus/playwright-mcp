@@ -5,11 +5,11 @@ A visual regression testing tool based on Playwright, supporting UI screenshot c
 ## Installation
 
 ```bash
-npm install @mcp/playwright-visual-test
+npm install @anguske/playwright-visual-test
 # or
-yarn add @mcp/playwright-visual-test
+yarn add @anguske/playwright-visual-test
 # or
-pnpm add @mcp/playwright-visual-test
+pnpm add @anguske/playwright-visual-test
 ```
 
 ## Features
@@ -46,7 +46,7 @@ In mcp.json, you can configure the Playwright visual test tool as follows:
     "command": "npx",
     "args": [
       "-y",
-      "mcp-playwright-visual-test"
+      "@anguske/mcp-playwright-visual-test"
     ],
     "env": {
       // Auto login configuration
