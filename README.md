@@ -1,4 +1,4 @@
-# @mcp/playwright-visual-test
+# @anguske/playwright-visual-test
 
 A visual regression testing tool based on Playwright, supporting UI screenshot comparison and automated testing.
 
